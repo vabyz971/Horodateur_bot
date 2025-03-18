@@ -4,16 +4,16 @@
       "minor_version": 1
   },
   "display_information": {
-      "name": "Bolt Template App"
+      "name": "Horodateur"
   },
   "features": {
       "app_home": {
           "home_tab_enabled": true,
           "messages_tab_enabled": false,
-          "messages_tab_read_only_enabled": true
+          "messages_tab_read_only_enabled": false
       },
       "bot_user": {
-          "display_name": "Bolt Template App",
+          "display_name": "Horodateur",
           "always_online": false
       },
       "shortcuts": [
@@ -26,8 +26,8 @@
       ],
       "slash_commands": [
           {
-              "command": "/sample-command",
-              "description": "Runs a sample command",
+              "command": "/infos",
+              "description": "information sur le bot Horodatage",
               "should_escape": false
           }
       ]
@@ -36,6 +36,7 @@
       "scopes": {
           "bot": [
               "channels:history",
+              "app_mentions:read",
               "chat:write",
               "commands"
           ]
@@ -45,7 +46,8 @@
       "event_subscriptions": {
           "bot_events": [
               "app_home_opened",
-              "message.channels"
+              "message.channels",
+              "app_mention"
           ]
       },
       "interactivity": {
