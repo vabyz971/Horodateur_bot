@@ -2,6 +2,35 @@ from logging import Logger
 from slack_sdk import WebClient
 
 
+def selectedCompetencesOption():
+    select_item = []
+    for i in range(22):
+        if i < 21:
+            select_item.append(
+                {
+                    "text": {
+                        "type": "plain_text",
+                        "text": f"Compétence {i + 1}",
+                        "emoji": True,
+                    },
+                    "value": f"Compétence {i + 1}",
+                }
+            )
+        else:
+            # Adding "STAGE" option at last...
+            select_item.append(
+                {
+                    "text": {
+                        "type": "plain_text",
+                        "text": "Compétence 22 (STAGE)",
+                        "emoji": True,
+                    },
+                    "value": "Compétence 22 (STAGE)",
+                }
+            )
+    return select_item
+
+
 def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
     # ignore the app_home_opened event for anything but the Home tab
     if event["tab"] != "home":
@@ -9,17 +38,7 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
     try:
         HEADER_BLOCK = {
             "type": "header",
-            "text": {"type": "plain_text", "text": "Horodateur", "emoji": True},
-        }
-
-
-        SECTION_BLOCK = {
-            "type": "section",
-            "text": {
-                "type": "plain_text",
-                "text": "Indiquez votre présence à tous les cours (période de 3 heures)",
-                "emoji": True,
-            },
+            "text": {"type": "plain_text", "text": "Indiquez votre présence à tous les cours (période de 3 heures)", "emoji": True},
         }
 
         DIVIDER_BLOCK = {"type": "divider"}
@@ -27,6 +46,14 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
         HEADER_FORM_BLOCK = {
             "type": "header",
             "text": {"type": "plain_text", "text": "Formulaire", "emoji": True},
+        }
+
+        USER_NAME_BLOCK = {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Nom de l'élève:* <@{event['user']}>",
+            },
         }
 
         RADIO_HORODATEUR_INPUT_BLOCK = {
@@ -135,16 +162,7 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
                     "text": "Sélectionner une compétence",
                     "emoji": True,
                 },
-                "options": [
-                    {
-                        "text": {
-                            "type": "plain_text",
-                            "text": "Compétence 1",
-                            "emoji": True,
-                        },
-                        "value": "Compétence 1",
-                    }
-                ],
+                "options": selectedCompetencesOption(),
                 "action_id": "form.competence",
             },
             "label": {
@@ -174,7 +192,10 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
         INPUT_NOTE_FORM_BLOCK = {
             "type": "input",
             "block_id": "form_note",
-            "element": {"type": "plain_text_input", "action_id": "form.note"},
+            "element": {
+                "type": "plain_text_input",
+                "multiline" : True,
+                "action_id": "form.note"},
             "label": {
                 "type": "plain_text",
                 "text": "Tu peux l'écrire ici dans la section Note. ",
@@ -205,9 +226,9 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
                 "type": "home",
                 "blocks": [
                     HEADER_BLOCK,
-                    SECTION_BLOCK,
                     DIVIDER_BLOCK,
                     HEADER_FORM_BLOCK,
+                    USER_NAME_BLOCK,
                     RADIO_HORODATEUR_INPUT_BLOCK,
                     DIVIDER_BLOCK,
                     RADIO_PERIODE_INPUT_BLOCK,
