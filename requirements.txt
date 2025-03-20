@@ -3,4 +3,4 @@ pytest
 flake8
 black
 requests
-sqlite3
+SQLAlchemy
