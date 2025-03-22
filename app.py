@@ -5,12 +5,8 @@ from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
 from listeners import register_listeners
 
-from database.database import db_manager
-
 logging.basicConfig(level=logging.DEBUG)
 
-# Initialisation DB
-db_manager.initialize_database()
     
 # Initialization
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))

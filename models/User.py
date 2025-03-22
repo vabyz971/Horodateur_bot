@@ -12,7 +12,7 @@ class UserModel(Base):
     __tablename__ = "users"
 
     id = Column(Integer, Sequence('user_id_seq'), primary_key = True)
-    id_slack = Column(String(50), nullable=False)
+    id_slack = Column(String(50), nullable=False , unique = True)
     name = Column(String(50), nullable=False)
     groupe = Column(String(50), nullable=False)
 

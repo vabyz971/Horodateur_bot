@@ -3,6 +3,21 @@ import requests
 from logging import Logger
 from slack_bolt import Ack
 from slack_sdk import WebClient
+from sqlalchemy.orm import Session
+from database import EngineDatabase
+from models.User import UserModel
+
+
+engine = EngineDatabase.start_engine()
+
+
+def user_exist(user_id: str):
+    with Session(engine) as session:
+        user = session.query(UserModel).filter(UserModel.id_slack == user_id).first()
+        if user is not None:
+            return user
+        else:
+            return False
 
 
 def validation_form(data: dict):
@@ -82,17 +97,9 @@ def submit_horodateur_action_callback(
         ]["value"]
         form_note = submit_form_data["form_note"]["form.note"]["value"] or ""
 
-        user_list = [
-            {
-                "username": "test",
-                "id": "00000",
-            },
-        ]
 
         model_form_data = {
-            "user": next(
-                (u["username"] for u in user_list if u["id"] == body["user"]["id"]), ""
-            ),
+            "user": user_exist(body["user"]["id"]).name,
             "horodateur": form_horodateur,
             "periode": form_periode,
             "presence": form_presence,

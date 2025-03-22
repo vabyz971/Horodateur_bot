@@ -1,12 +1,11 @@
-from slack_bolt import Ack, Respond
 from logging import Logger
-from slack_sdk import WebClient
 from ..utils.verifications import is_user_admin
+from slack_bolt import Ack
+from slack_sdk import WebClient
 
 
-
-def add_user_callback(
-    body, ack: Ack, client: WebClient, respond: Respond, logger: Logger
+def update_select_user_modal_action_callback(
+    ack: Ack, client: WebClient, body: dict, logger: Logger
 ):
     ## VIEW MODAL BLOCK
 
@@ -18,10 +17,18 @@ def add_user_callback(
         },
     }
 
+    modal_values = body["view"]["state"]["values"]
+    select_user_id = modal_values["list_user_id"]["update_select_user_modal_action"][
+        "selected_user"
+    ]
+
     LIST_USERS_BLOCK = {
         "type": "section",
         "block_id": "list_user_id",
-        "text": {"type": "mrkdwn", "text": "Sélectionnez un utilisateur"},
+        "text": {
+            "type": "mrkdwn",
+            "text": f"Utilisateur sélectionné : <@{select_user_id}>",
+        },
         "accessory": {
             "type": "users_select",
             "placeholder": {
@@ -36,7 +43,7 @@ def add_user_callback(
     NAME_USER_BLOCK = {
         "type": "input",
         "block_id": "name_user_id",
-        "element": {"type": "plain_text_input", "action_id": "name_user",},
+        "element": {"type": "plain_text_input", "action_id": "name_user"},
         "label": {
             "type": "plain_text",
             "text": "Nom du nouvel utilisateur : ",
@@ -77,35 +84,39 @@ def add_user_callback(
         "label": {"type": "plain_text", "text": "List des groupes", "emoji": True},
     }
 
-    
     try:
         ack()
-
         ## IS USER AN ADMIN
-        if is_user_admin(body["user_id"]):
-            client.views_open(
-                    trigger_id=body["trigger_id"],
-                    view={
-                        "type": "modal",
-                        "callback_id": "add_user_view",
-                        "title": {"type": "plain_text", "text": "Ajout d'un utilisateur"},
-                        "blocks": [
-                            DESCRIPTION_BLOCK,
-                            LIST_USERS_BLOCK,
-                            NAME_USER_BLOCK,
-                            LIST_GROUPS_BLOCK
-                        ],
-                        "submit": {
-                            "type": "plain_text",
-                            "text": "Ajouter",
-                            "emoji": True,
-                        },
-                        "close": {"type": "plain_text", "text": "Fermer", "emoji": True},
+        if is_user_admin(body["user"]["id"]):
+            client.views_update(
+                view_id=body["view"]["id"],
+                hash=body["view"]["hash"],
+                view={
+                    "type": "modal",
+                    "callback_id": "add_user_view",
+                    "title": {
+                        "type": "plain_text",
+                        "text": "Ajouter un utilisateur",
                     },
-                )
+                    "blocks": [
+                        DESCRIPTION_BLOCK,
+                        LIST_USERS_BLOCK,
+                        NAME_USER_BLOCK,
+                        LIST_GROUPS_BLOCK,
+                    ],
+                    "submit": {
+                        "type": "plain_text",
+                        "text": "Ajouter",
+                        "emoji": True,
+                    },
+                    "close": {"type": "plain_text", "text": "Fermer", "emoji": True},
+                },
+            )
+
         else:
-            return respond("Vous n'êtes pas Admin !!!")
-            
-        
+            return client.chat_postMessage(
+                channel=body["channel_id"], text="Vous n'êtes pas Admin !!!"
+            )
+
     except Exception as e:
         logger.error(e)
