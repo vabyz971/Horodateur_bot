@@ -1,11 +1,10 @@
 import os
 
 
-
 def is_user_admin(id_user: str) -> bool:
     """
     The function `is_user_admin` checks if a user is an admin based on their ID.
-    
+
     :param id_user: The `id_user` parameter is a string representing the user ID of a user in a Slack
     workspace
     :type id_user: str

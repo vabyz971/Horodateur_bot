@@ -8,9 +8,10 @@ from slack_sdk.oauth.installation_store import FileInstallationStore
 from slack_sdk.oauth.state_store import FileOAuthStateStore
 
 from listeners import register_listeners
+from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.DEBUG)
-
+load_dotenv()
 
 # Callback to run on successful installation
 def success(args: SuccessArgs) -> BoltResponse:

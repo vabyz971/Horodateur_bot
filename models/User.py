@@ -1,5 +1,6 @@
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, Sequence, String
+from sqlalchemy.orm import Session
 from database import EngineDatabase
 
 
@@ -19,5 +20,17 @@ class UserModel(Base):
     def __repr__(self) -> str:
         return f"User (id={self.id!r}, id_slack={self.id_slack!r}, name={self.name!r}, groupe={self.groupe!r})"
 
+
+    def count():
+        with Session(engine) as session:
+            return session.query(UserModel).count()
+        
+    def get_all():
+        with Session(engine) as session:
+            return session.query(UserModel).all()
+        
+    def get_user(user_id: str):
+        with Session(engine) as session:
+            return session.query(UserModel).filter(UserModel.id_slack == user_id).first()
 
 Base.metadata.create_all(engine)

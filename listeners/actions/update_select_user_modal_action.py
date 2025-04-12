@@ -1,92 +1,46 @@
 from logging import Logger
-from ..utils.verifications import is_user_admin
 from slack_bolt import Ack
 from slack_sdk import WebClient
+from ..utils.verifications import is_user_admin
+from ..utils.elements_blocks import section, section_accessory, input_text, input_select, input_select_users
 
 
 def update_select_user_modal_action_callback(
     ack: Ack, client: WebClient, body: dict, logger: Logger
 ):
-    ## VIEW MODAL BLOCK
-
-    DESCRIPTION_BLOCK = {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": "Ajouter un utilisateur pour qu'il soit automatiquement redirigé sur le bon formulaire",
-        },
-    }
 
     modal_values = body["view"]["state"]["values"]
-    select_user_id = modal_values["list_user_id"]["update_select_user_modal_action"][
-        "selected_user"
+    select_user_id = modal_values["list_user_id"]["update_select_user_modal_action"]["selected_user"]
+
+    # VIEW MODAL BLOCK
+
+    BLOCK = [
+        section("Ajouter un utilisateur pour qu'il soit automatiquement redirigé sur le bon formulaire"),
+        section_accessory(
+            text=f"Utilisateur sélectionné : <@{select_user_id}>",
+            block_id="list_user_id",
+            accessory=input_select_users(
+                label="Liste des utilisateurs",
+                action_id="update_select_user_modal_action")),
+        input_text(
+            label="Nom du nouvel utilisateur : ",
+            action_id="name_user",
+            block_id="name_user_id"
+        ),
+        input_select(
+            label="List des groupes",
+            placeholder="Sélectionner un groupe",
+            action_id="group_user",
+            block_id="group_user_id",
+            options={
+                "Groupe J01": "J01",
+                "Groupe H01": "H01"}
+        )
     ]
-
-    LIST_USERS_BLOCK = {
-        "type": "section",
-        "block_id": "list_user_id",
-        "text": {
-            "type": "mrkdwn",
-            "text": f"Utilisateur sélectionné : <@{select_user_id}>",
-        },
-        "accessory": {
-            "type": "users_select",
-            "placeholder": {
-                "type": "plain_text",
-                "text": "Liste des utilisateurs",
-                "emoji": True,
-            },
-            "action_id": "update_select_user_modal_action",
-        },
-    }
-
-    NAME_USER_BLOCK = {
-        "type": "input",
-        "block_id": "name_user_id",
-        "element": {"type": "plain_text_input", "action_id": "name_user"},
-        "label": {
-            "type": "plain_text",
-            "text": "Nom du nouvel utilisateur : ",
-            "emoji": True,
-        },
-    }
-
-    LIST_GROUPS_BLOCK = {
-        "type": "input",
-        "block_id": "group_user_id",
-        "element": {
-            "type": "static_select",
-            "placeholder": {
-                "type": "plain_text",
-                "text": "Sélectionner un groupe",
-                "emoji": True,
-            },
-            "options": [
-                {
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Groupe J01",
-                        "emoji": True,
-                    },
-                    "value": "J01",
-                },
-                {
-                    "text": {
-                        "type": "plain_text",
-                        "text": "Groupe H01",
-                        "emoji": True,
-                    },
-                    "value": "H01",
-                },
-            ],
-            "action_id": "group_user",
-        },
-        "label": {"type": "plain_text", "text": "List des groupes", "emoji": True},
-    }
 
     try:
         ack()
-        ## IS USER AN ADMIN
+        # IS USER AN ADMIN
         if is_user_admin(body["user"]["id"]):
             client.views_update(
                 view_id=body["view"]["id"],
@@ -98,12 +52,7 @@ def update_select_user_modal_action_callback(
                         "type": "plain_text",
                         "text": "Ajouter un utilisateur",
                     },
-                    "blocks": [
-                        DESCRIPTION_BLOCK,
-                        LIST_USERS_BLOCK,
-                        NAME_USER_BLOCK,
-                        LIST_GROUPS_BLOCK,
-                    ],
+                    "blocks": BLOCK,
                     "submit": {
                         "type": "plain_text",
                         "text": "Ajouter",

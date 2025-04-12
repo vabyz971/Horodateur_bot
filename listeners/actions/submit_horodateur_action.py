@@ -1,24 +1,16 @@
 import os
 import requests
+from dotenv import load_dotenv
 from logging import Logger
 from slack_bolt import Ack
 from slack_sdk import WebClient
 from sqlalchemy.orm import Session
 from database import EngineDatabase
 from models.User import UserModel
-
+from ..utils.elements_blocks import section, header
 
 engine = EngineDatabase.start_engine()
-
-
-def user_exist(user_id: str):
-    with Session(engine) as session:
-        user = session.query(UserModel).filter(UserModel.id_slack == user_id).first()
-        if user is not None:
-            return user
-        else:
-            return False
-
+load_dotenv()
 
 def validation_form(data: dict):
     if (
@@ -97,17 +89,14 @@ def submit_horodateur_action_callback(
         ]["value"]
         form_note = submit_form_data["form_note"]["form.note"]["value"] or ""
 
-
         model_form_data = {
-            "user": user_exist(body["user"]["id"]).name,
+            "user": UserModel.get_user(body["user"]["id"]).name,
             "horodateur": form_horodateur,
             "periode": form_periode,
             "presence": form_presence,
             "competence": form_competence,
             "note": form_note,
         }
-
-        print(model_form_data["user"])
 
         if validation_form(model_form_data):
             if send_request_google_forms(model_form_data, logger):
@@ -132,13 +121,8 @@ def submit_horodateur_action_callback(
                             "emoji": True,
                         },
                         "blocks": [
-                            {
-                                "type": "section",
-                                "text": {
-                                    "type": "mrkdwn",
-                                    "text": f"Horodateur vous enverra une confirmation par message.",
-                                },
-                            }
+                            header("Votre formulaire a bien été enregister"),
+                            section("Horodateur vous enverra une confirmation par message."),
                         ],
                     },
                 )

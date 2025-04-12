@@ -8,10 +8,38 @@ def header(text: str):
     }
 
 
-def section(text: str):
+def section(text: str, block_id: str = ""):
     return {
         "type": "section",
+        "block_id": block_id,
         "text": {"type": "mrkdwn", "text": text},
+    }
+
+
+def section_accessory(text: str, block_id: str = "", accessory: str = ""):
+    return {
+        "type": "section",
+        "block_id": block_id,
+        "text": {
+            "type": "mrkdwn",
+            "text": text,
+        },
+        "accessory": accessory
+    }
+
+
+def section_list(list: []):
+    field = []
+    for item in list:
+        field.append({
+            "type": "mrkdwn",
+            "text": item
+        })
+    return {
+        "type": "section",
+        "fields": [
+            *field
+        ]
     }
 
 
@@ -42,7 +70,7 @@ def tab_rich_text(elements: list, title: str):
     }
 
 
-def list_users_section(users: list[UserModel]):  
+def list_users_section(users: list[UserModel]):
     items = []
     for user in users:
         items.append(
@@ -66,27 +94,140 @@ def context(elements: list):
     }
 
 
-def accessory(blocks):
+def button(label: str, style: str, action_id: str = "", value: str = ""):
     return {
-        "accessory" : {
-            blocks
-        }
-    }
-
-
-def button(name : str, style : str ,action: str = "action_id", value : str = ""):
-    return{
         "type": "button",
-        "text":{
-            "type":"plain_text",
-            "emoji":True,
-            "text":name
+        "text": {
+            "type": "plain_text",
+            "emoji": True,
+            "text": label
         },
         "value": value,
         "style": style,
-        "action_id": action,
+        "action_id": action_id,
+    }
+
+
+def button_action(label: str, value: str = "submit", action_id: str = "", block_id: str = ""):
+    return {
+        "type": "actions",
+        "block_id": block_id,
+        "elements": [
+            {
+                "type": "button",
+                "text": {
+                    "type": "plain_text",
+                    "text": label,
+                    "emoji": True,
+                },
+                "value": value,
+                "action_id": action_id,
+            }
+        ]
     }
 
 
 def divider():
     return {"type": "divider"}
+
+
+def list_users_block_slack(title: str, placeholder: str, action_id: str = "", block_id: str = ""):
+    return {
+        "type": "section",
+        "block_id": block_id,
+        "text": {"type": "mrkdwn", "text": title},
+        "accessory": {
+            "type": "users_select",
+            "placeholder": {
+                "type": "plain_text",
+                "text": placeholder,
+                "emoji": True,
+            },
+            "action_id": action_id,
+        },
+    }
+
+
+def input_text(label: str, action_id: str = "", block_id: str = "", multiline=False):
+    return {
+        "type": "input",
+        "block_id": block_id,
+        "element": {
+            "type": "plain_text_input",
+            "multiline": multiline,
+            "action_id": action_id,
+        },
+        "label": {
+            "type": "plain_text",
+            "text": label,
+            "emoji": True,
+        },
+    }
+
+
+def input_select(options: dict, label: str = "", placeholder: str = "", action_id: str = "", block_id: str = ""):
+    items = []
+    for key, value in options.items():
+        items.append({
+            "text": {
+                "type": "plain_text",
+                "text": key,
+                "emoji": True,
+            },
+            "value": value
+        })
+
+    return {
+        "type": "input",
+        "block_id": block_id,
+        "element": {
+            "type": "static_select",
+            "placeholder":  {
+                "type": "plain_text",
+                "text": placeholder,
+                "emoji": True,
+            },
+            "options": [
+                *items
+            ],
+            "action_id": action_id
+        },
+        "label": {"type": "plain_text", "text": label, "emoji": True},
+    }
+
+
+def input_radio(options: dict, label: str = "", action_id: str = "", block_id: str = ""):
+    items = []
+    for key, value in options.items():
+        items.append({
+            "text": {
+                "type": "plain_text",
+                "text": key,
+                "emoji": True,
+            },
+            "value": value
+        })
+    return {
+        "type": "input",
+        "block_id": block_id,
+        "element": {
+            "type": "radio_buttons",
+            "options": [
+                *items
+            ],
+            "action_id": action_id
+        },
+        "label": {"type": "plain_text", "text": label, "emoji": True},
+    }
+
+
+def input_select_users(label : str = "", action_id : str = ""):
+    return {
+        "type": "users_select",
+        "placeholder": {
+                "type": "plain_text",
+                "text": label,
+                "emoji": True,
+        },
+        "action_id": action_id,
+    }

@@ -1,75 +1,22 @@
 from logging import Logger
 from slack_bolt import Ack, Respond
+from ..utils.elements_blocks import header, section_list
 
 
 def infos_command_callback(ack: Ack, respond: Respond, logger: Logger):
     try:
         ack()
-        HEADER_BLOCK = {
-            "type": "header",
-            "text": {
-                "type": "plain_text",
-                "text": "Information :spiral_note_pad:",
-                "emoji": True,
-            },
-        }
-        LIST_BLOCK = [
-            {
-                "type": "rich_text_section",
-                "elements": [
-                    {"type": "text", "text": "Nom: "},
-                    {
-                        "type": "text",
-                        "text": "@Horodateur",
-                    },
-                ],
-            },
-            {
-                "type": "rich_text_section",
-                "elements": [
-                    {"type": "text", "text": "Version: "},
-                    {
-                        "type": "text",
-                        "text": "0.2.0",
-                    },
-                ],
-            },
-            {
-                "type": "rich_text_section",
-                "elements": [
-                    {"type": "text", "text": "Autheur: "},
-                    {
-                        "type": "link",
-                        "url": "https://github.com/vabyz971",
-                        "text": "Vabyz971",
-                        "style": {
-                            "bold": True,
-                        },
-                    },
-                ],
-            },
+
+        BLOCK = [
+            header("Information :spiral_note_pad:"),
+            section_list([
+                '*Description* :\n Bot Slack qui simplifie l\'horodatage avec quelques fonctionnalités plutôt sympa.\
+                 Crée par et pour les élèves d\'infographies de Bel-Avenir',
+                '*Auteur* : vabyz971',
+                '*Version* : 0.1.0',
+            ])
         ]
 
-        SECTION_BLOCK = {
-            "type": "rich_text",
-            "elements": [
-                {
-                    "type": "rich_text_section",
-                    "elements": [
-                        {
-                            "type": "text",
-                            "text": "Details: ",
-                        }
-                    ],
-                },
-                {
-                    "type": "rich_text_list",
-                    "style": "bullet",
-                    "indent": 0,
-                    "elements": LIST_BLOCK,
-                },
-            ],
-        }
-        respond(blocks=[HEADER_BLOCK, SECTION_BLOCK])
+        respond(blocks=BLOCK)
     except Exception as e:
         logger.error(e)

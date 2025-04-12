@@ -7,13 +7,12 @@ def confirmation_google_view_callback(ack: Ack, body: dict, client: WebClient, l
     try:
         ack()
         user_id = body["user"]["id"]
-        channel_id  = body["user"]["id"]
-
+        channel_id = body["user"]["id"]
 
         client.chat_postEphemeral(
             channel=channel_id,
             user=user_id,
-            text="Le formulaire a été transmis avec succès"
+            text="Le formulaire a été transmis avec succès :white_check_mark:"
         )
     except Exception as e:
         logger.error(e)
