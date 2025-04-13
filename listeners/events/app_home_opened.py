@@ -7,9 +7,9 @@ def selectedCompetencesOption():
     select_item = {}
     for i in range(22):
         if (i < 21):
-            select_item[f'Compétence {i}'] = f"Compétence {i}"
+            select_item[f'Compétence {i+1}'] = f"Compétence {i+1}"
         else:
-            select_item[f'Compétence {i} (STAGE)'] = f"Compétence {i} (STAGE)"
+            select_item[f'Compétence {i+1} (STAGE)'] = f"Compétence {i+1} (STAGE)"
     return select_item
 
 
@@ -20,6 +20,9 @@ def app_home_opened_callback(client: WebClient, event: dict, logger: Logger):
     try:
 
         BLOCKS = [
+            header("Attention:warning:"),
+            section(text="Le formulaire n\'utilise pas les API officielles de Google. Elle est basée sur du rétro engineering.\nIl se peut que le formulaire ne fonctionne pas en tout temps."),
+            divider(),
             header("Indiquez votre présence à tous les cours (période de 3 heures)"),
             divider(),
             section(f"*Nom de l'élève :* <@{event['user']}>"),
